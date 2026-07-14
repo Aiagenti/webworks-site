@@ -3,159 +3,327 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TÜV AI Agent Builder – Übungsquiz (Multiple Select)</title>
+<title>TÜV AI Agent Builder – Prüfungstrainer (Multiple Select)</title>
 <style>
   :root{ --blue:#2563eb; --ink:#1e293b; --muted:#64748b; --bg:#f4f6fb; --card:#fff; --border:#e2e8f0;
-         --green:#16a34a; --greenbg:#dcfce7; --red:#dc2626; --redbg:#fee2e2; }
+         --green:#16a34a; --greenbg:#dcfce7; --red:#dc2626; --redbg:#fee2e2; --amber:#b45309; }
   *{ box-sizing:border-box; }
   body{ font-family:'Segoe UI',system-ui,Arial,sans-serif; background:var(--bg); color:var(--ink); margin:0; line-height:1.5; }
-  header{ background:var(--card); border-bottom:3px solid var(--blue); padding:1.4rem 1.2rem; text-align:center; position:sticky; top:0; z-index:5; }
-  header h1{ margin:0; font-size:1.35rem; }
-  header p{ margin:.3rem 0 0; color:var(--muted); font-size:.9rem; }
-  main{ max-width:820px; margin:0 auto; padding:1.4rem 1.2rem 6rem; }
-  .q{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1rem; }
-  .q h3{ margin:0 0 .2rem; font-size:1rem; }
-  .q .meta{ color:var(--muted); font-size:.78rem; margin-bottom:.7rem; }
-  label.opt{ display:flex; gap:.6rem; align-items:flex-start; padding:.55rem .7rem; border:1px solid var(--border); border-radius:8px; margin-bottom:.45rem; cursor:pointer; font-size:.94rem; transition:background .15s; }
-  label.opt:hover{ background:#f8fafc; }
-  label.opt input{ margin-top:.15rem; width:18px; height:18px; flex-shrink:0; accent-color:var(--blue); }
-  .badge{ display:inline-block; font-size:.75rem; font-weight:700; padding:.15rem .55rem; border-radius:999px; margin-left:.5rem; }
-  .b-ok{ background:var(--greenbg); color:var(--green); }
-  .b-no{ background:var(--redbg); color:var(--red); }
-  .opt.correct{ border-color:var(--green); background:var(--greenbg); }
-  .opt.wrong{ border-color:var(--red); background:var(--redbg); }
-  .expl{ display:none; margin-top:.5rem; font-size:.86rem; color:var(--muted); background:#f8fafc; border-left:3px solid var(--blue); padding:.5rem .7rem; border-radius:6px; }
-  .bar{ position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); padding:.8rem 1.2rem; display:flex; gap:.8rem; align-items:center; justify-content:center; flex-wrap:wrap; }
-  button{ font-size:.95rem; font-weight:700; border:none; border-radius:9px; padding:.6rem 1.3rem; cursor:pointer; }
+  header{ background:var(--card); border-bottom:3px solid var(--blue); padding:1rem 1.2rem; text-align:center; position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; }
+  header h1{ margin:0; font-size:1.15rem; }
+  #timer{ font-weight:800; font-size:1.1rem; padding:.2rem .7rem; border-radius:8px; background:#eef2f9; color:var(--blue); }
+  #timer.warn{ background:var(--redbg); color:var(--red); }
+  main{ max-width:840px; margin:0 auto; padding:1.4rem 1.2rem 6rem; }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1rem; }
+  .card.center{ text-align:center; }
+  h2{ margin:.2rem 0 .6rem; }
+  p.sub{ color:var(--muted); margin:.2rem 0 1rem; }
+  .modebtns{ display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-top:.6rem; }
+  button{ font-size:.95rem; font-weight:700; border:none; border-radius:10px; padding:.7rem 1.3rem; cursor:pointer; }
   .primary{ background:var(--blue); color:#fff; } .primary:hover{ background:#1d4ed8; }
   .ghost{ background:#eef2f9; color:var(--ink); } .ghost:hover{ background:#e2e8f0; }
-  #score{ font-weight:700; font-size:1.05rem; }
-  #score .pass{ color:var(--green); } #score .fail{ color:var(--red); }
+  .big{ padding:1rem 1.4rem; font-size:1.02rem; }
+  .q{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1rem; }
+  .q .top{ display:flex; justify-content:space-between; gap:.6rem; align-items:baseline; }
+  .q h3{ margin:0 0 .5rem; font-size:1rem; }
+  .tag{ font-size:.68rem; font-weight:700; color:var(--blue); background:#eef2f9; padding:.12rem .5rem; border-radius:999px; white-space:nowrap; }
+  .meta{ color:var(--muted); font-size:.76rem; margin:-.2rem 0 .6rem; }
+  label.opt{ display:flex; gap:.6rem; align-items:flex-start; padding:.55rem .7rem; border:1px solid var(--border); border-radius:8px; margin-bottom:.45rem; cursor:pointer; font-size:.93rem; transition:background .15s; }
+  label.opt:hover{ background:#f8fafc; }
+  label.opt input{ margin-top:.15rem; width:18px; height:18px; flex-shrink:0; accent-color:var(--blue); }
+  .badge{ display:inline-block; font-size:.72rem; font-weight:700; padding:.12rem .55rem; border-radius:999px; margin-left:.5rem; }
+  .b-ok{ background:var(--greenbg); color:var(--green); } .b-no{ background:var(--redbg); color:var(--red); }
+  .opt.correct{ border-color:var(--green); background:var(--greenbg); }
+  .opt.wrong{ border-color:var(--red); background:var(--redbg); }
+  .expl{ display:none; margin-top:.5rem; font-size:.85rem; color:#334155; background:#f8fafc; border-left:3px solid var(--blue); padding:.5rem .7rem; border-radius:6px; }
+  .bar{ position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); padding:.7rem 1.2rem; display:flex; gap:.8rem; align-items:center; justify-content:center; flex-wrap:wrap; z-index:15; }
+  #result{ font-weight:700; font-size:1.02rem; }
+  #result .pass{ color:var(--green); } #result .fail{ color:var(--red); }
+  .scorebox{ text-align:center; }
+  .scorebox .big{ font-size:2.2rem; font-weight:800; }
+  .filterrow{ display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; }
+  select{ padding:.5rem .7rem; border-radius:8px; border:1px solid var(--border); font-size:.9rem; }
+  .hidden{ display:none; }
+  ul.topics{ columns:2; font-size:.85rem; color:var(--muted); margin:.6rem 0 0; padding-left:1.1rem; }
+  @media(max-width:560px){ ul.topics{ columns:1; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>TÜV AI Agent Builder – Übungsquiz</h1>
-  <p>Multiple Select · mehrere Antworten können richtig sein · Wertung: nur <b>vollständig richtig = 1 Punkt</b> (wie in der TÜV-MC-Prüfung)</p>
+  <h1>🎓 TÜV AI Agent Builder – Prüfungstrainer</h1>
+  <span id="timer" class="hidden"></span>
 </header>
-<main>
-  <div id="quiz"></div>
-</main>
-<div class="bar">
-  <button class="primary" id="btnEval" type="button">Auswerten</button>
-  <button class="ghost" id="btnReset" type="button">Zurücksetzen</button>
-  <span id="score"></span>
-</div>
+<main id="app"></main>
+<div class="bar hidden" id="bar"></div>
+
 <script>
+/* ---------- Fragenpool (eigene, prüfungsnahe Formulierungen) ---------- */
 const Q=[
-{q:"Welche Aussagen über Large Language Models (LLMs) treffen zu?",o:["Sie sagen das wahrscheinlichste nächste Token voraus.","Sie besitzen echtes Bewusstsein und verstehen wie ein Mensch.","Ein- und Ausgabe werden in Tokens gemessen.","Sie können falsche, aber plausible Aussagen erzeugen (Halluzination)."],c:[0,2,3],e:"LLMs sind statistische Vorhersagemodelle; sie haben kein Bewusstsein und können halluzinieren."},
-{q:"Was ist das Kontextfenster eines LLM?",o:["Die maximale Menge an Tokens (Ein- + Ausgabe), die gleichzeitig verarbeitet wird.","Die Anzahl gleichzeitiger Nutzer.","Die Trainingsdauer des Modells.","Der Zeitraum, in dem Antworten gespeichert werden."],c:[0],e:"Das Kontextfenster begrenzt die gleichzeitig verarbeitbaren Tokens."},
-{q:"Welche Maßnahmen reduzieren Halluzinationen?",o:["Klare Rolle/Anweisung im Prompt.","Temperature möglichst hoch setzen.","Bei Unsicherheit an den Menschen eskalieren.","Nur belegte Fakten zulassen, keine Werte erfinden."],c:[0,2,3],e:"Hohe Temperature erhöht die Zufälligkeit und damit eher Halluzinationen."},
-{q:"Was unterscheidet einen AI-Agenten von einer klassischen Automation?",o:["Der Agent trifft situative Entscheidungen.","Der Agent wählt passende Tools aus.","Eine Automation folgt einem festen, vorprogrammierten Ablauf.","Ein Agent kann niemals an den Menschen eskalieren."],c:[0,1,2],e:"Agenten entscheiden und wählen Tools; gute Agenten eskalieren bei Unsicherheit."},
-{q:"Was trifft auf ein Multi-Agent-System mit Orchestrator zu?",o:["Ein Orchestrator plant und verteilt Teilaufgaben an Sub-Agenten.","Spezialisierte Agenten mit klaren Rollen reduzieren die Angriffsfläche.","Jeder Sub-Agent braucht volle Systemrechte.","Ergebnisse können durch einen Reviewer geprüft werden."],c:[0,1,3],e:"Least Privilege gilt auch hier – Sub-Agenten bekommen nur nötige Rechte."},
-{q:"Was beschreibt Agent-Memory?",o:["Informationen über einzelne Aufrufe hinaus speichern/wiederverwenden.","Die Größe des LLM-Modells in GB.","Kurzzeit- und Langzeitgedächtnis eines Agenten.","Die Anzahl paralleler Tools."],c:[0,2],e:"Memory = Persistenz von Informationen über Aufrufe hinweg."},
-{q:"Was trifft auf das Model Context Protocol (MCP) zu?",o:["Ein offener Standard zur Anbindung von Tools/Datenquellen an LLMs.","Es standardisiert Integrationen, statt jede einzeln zu bauen.","Es ist ein LLM-Modell von OpenAI.","Es ersetzt die DSGVO."],c:[0,1],e:"MCP ist ein Integrations-Standard, kein Modell und kein Rechtsrahmen."},
-{q:"Ordne die Integrationsarten korrekt zu:",o:["API = aktives Abfragen/Senden (Request/Response).","Webhook = ereignisgesteuerter Push.","GraphQL = Client fragt gezielt genau die benötigten Felder ab.","Webhook = man fragt aktiv beim Server an."],c:[0,1,2],e:"Webhook ist Push (Ereignis stößt an), nicht Pull."},
-{q:"Was gehört in einen guten Prompt?",o:["Klare Rolle.","Kontext und gewünschtes Ausgabeformat.","Ggf. Beispiele (Few-Shot).","Möglichst viele widersprüchliche Anweisungen."],c:[0,1,2],e:"Widersprüche verschlechtern die Ergebnisse."},
-{q:"Was ist ein System Prompt?",o:["Die übergeordnete Instruktion, die Rolle/Verhalten/Grenzen definiert.","Die erste Nutzernachricht im Chat.","Ein Rahmen für alle Antworten des Agenten.","Die Fehlermeldung des Systems."],c:[0,2],e:"Der System Prompt setzt den Rahmen (Rolle, Grenzen) für den Agenten."},
-{q:"Pseudonymisierung vs. Anonymisierung – was stimmt?",o:["Pseudonymisierung ist über einen Schlüssel/Token reversibel.","Pseudonyme Daten bleiben personenbezogen (Art. 4 Nr. 5).","Anonymisierung ist irreversibel.","Anonyme Daten unterliegen weiterhin voll der DSGVO."],c:[0,1,2],e:"Echte Anonymisierung verlässt den Anwendungsbereich der DSGVO."},
-{q:"Welche sind Rechtsgrundlagen nach Art. 6 Abs. 1 DSGVO?",o:["Einwilligung (lit. a).","Vertragserfüllung/-anbahnung (lit. b).","Berechtigtes Interesse (lit. f).","Der Wunsch des Marketing-Teams."],c:[0,1,2],e:"Eine Rechtsgrundlage muss objektiv vorliegen, nicht bloß ein Wunsch."},
-{q:"Was besagt Art. 22 DSGVO?",o:["Recht, keiner ausschließlich automatisierten Entscheidung mit erheblicher Wirkung unterworfen zu sein.","Pflicht, alle Daten 10 Jahre zu speichern.","Rechtfertigt Human-in-the-Loop bei folgenreichen Entscheidungen.","Verbietet jede Form von KI."],c:[0,2],e:"Art. 22 fordert menschliches Eingreifen bei folgenreichen automatisierten Entscheidungen."},
-{q:"Was gehört zu 'Privacy by Design' (Art. 25) / Datenminimierung?",o:["Datenschutz von Anfang an in Technik/Prozess einbauen.","Nur so viele Daten verarbeiten wie nötig.","Dem KI-System möglichst viele Klarnamen geben.","Pseudonymisierung als eingebaute Maßnahme."],c:[0,1,3],e:"Datenminimierung heißt: dem LLM keine unnötigen Klardaten geben."},
-{q:"Welche sind Betroffenenrechte der DSGVO?",o:["Auskunft (Art. 15).","Löschung (Art. 17).","Datenübertragbarkeit (Art. 20).","Recht auf kostenlose Software."],c:[0,1,2],e:"Kostenlose Software ist kein DSGVO-Recht."},
-{q:"Was gilt bei Auftragsverarbeitung / Drittlandtransfer?",o:["Mit Auftragsverarbeitern ist ein AV-Vertrag (Art. 28) nötig.","Drittlandtransfer (z. B. USA) braucht geeignete Garantien wie SCC.","Cloud-Anbieter dürfen frei mit den Daten machen, was sie wollen.","Ein Auftragsverarbeiter verarbeitet im Auftrag des Verantwortlichen."],c:[0,1,3],e:"Auftragsverarbeiter sind weisungsgebunden – nicht frei."},
-{q:"Wie klassifiziert der EU AI Act Systeme?",o:["Risikobasiert (minimal bis verboten).","Je höher das Risiko, desto strengere Pflichten.","Ausschließlich nach Umsatz des Anbieters.","Nur nach Programmiersprache."],c:[0,1],e:"Der EU AI Act ist risikobasiert."},
-{q:"Was verlangt die Transparenzpflicht (Art. 50 EU AI Act)?",o:["KI-generierte Inhalte / KI-Einsatz kennzeichnen.","Nutzer über den Einsatz von KI informieren.","Alle Quelltexte offenlegen.","Das LLM-Modell verbieten."],c:[0,1],e:"Art. 50 fordert Transparenz/Kennzeichnung, keine Quelltext-Offenlegung."},
-{q:"Welche Systeme sind typischerweise Hochrisiko (Annex III)?",o:["Kreditwürdigkeitsprüfung.","Personalauswahl/Recruiting.","Biometrische Identifizierung.","Ein Newsletter-Textgenerator für Marketing."],c:[0,1,2],e:"Marketing-Textgenerierung ist i. d. R. kein Hochrisiko."},
-{q:"Was ist Prompt Injection (OWASP LLM01)?",o:["Versteckte Anweisungen in Eingaben manipulieren den Agenten.","Ein Versuch, Regeln zu überschreiben oder Daten auszuleiten.","Eine legitime Methode, den Agenten zu verbessern.","Kann durch deterministische Logik + feste Empfänger abgewehrt werden."],c:[0,1,3],e:"Prompt Injection ist ein Angriff, keine Optimierungsmethode."},
-{q:"Welche Sicherheitsprinzipien gelten für Agenten?",o:["Least Privilege (minimale Rechte pro Agent).","Guardrails/klare Grenzen im System Prompt.","Sicherheitskritische Logik in deterministische Knoten statt in den Prompt.","Dem Agenten alle Rechte geben, damit er flexibel ist."],c:[0,1,2],e:"Maximale Rechte erhöhen das Risiko – Gegenteil von Least Privilege."},
-{q:"Welche drei Freigabetypen gibt es (Human-in-the-Loop)?",o:["Hart kodiert (technischer Stopp/Button).","Weich durch Prompt (Chat-Rückfrage).","Adaptiv durch Agent (fragt nur bei Unklarheit).","Automatisch ohne jede Kontrolle."],c:[0,1,2],e:"'Ohne Kontrolle' ist kein Human-in-the-Loop-Typ."},
-{q:"Wann sollte man eine harte Freigabe einsetzen?",o:["Bei hoher finanzieller Auswirkung.","Bei rechtlicher/unwiderruflicher Wirkung.","Bei jeder trivialen Routineaufgabe zwingend.","Wenn Fehler teurer sind als der Automatisierungsgewinn."],c:[0,1,3],e:"Für triviale Routine ist adaptive Autonomie effizienter."},
-{q:"Wie misst man Erfolg/Qualität eines Agenten?",o:["Business-Value (z. B. Zeitersparnis).","Technische Zuverlässigkeit (Fehlerquote, korrekte Entscheidungen).","Evaluationen mit definierten Testfällen.","Anzahl der Zeilen Code."],c:[0,1,2],e:"Codezeilen sagen nichts über Erfolg/Qualität aus."},
-{q:"Wovon hängen die Kosten einer LLM-Anwendung ab?",o:["Anzahl verarbeiteter Tokens (Ein- + Ausgabe).","Gewähltes Modell.","Aufrufhäufigkeit.","Bildschirmgröße des Nutzers."],c:[0,1,2],e:"Kosten skalieren mit Tokens, Modell und Aufrufen."},
-{q:"Cloud-LLM vs. Self-Hosting – was stimmt?",o:["Cloud: einfach/skalierbar, aber begrenzte Datenhoheit.","Self-Hosting: volle Datenhoheit, aber Wartung/Know-how nötig.","Hybrid: Datenhoheit lokal + Rechenleistung in der Cloud.","Self-Hosting ist immer günstiger und wartungsfrei."],c:[0,1,2],e:"Self-Hosting bringt Wartungs-/Know-how-Aufwand mit sich."},
-{q:"Was trifft auf n8n-Workflows zu?",o:["Ein Trigger löst den Workflow aus (z. B. Formular, Webhook, Zeitplan).","Ein Switch/IF verzweigt anhand von Bedingungen.","Harte Logik gehört in deterministische Knoten, nicht in den Prompt.","Ein Workflow kann keine externen Tools ansprechen."],c:[0,1,2],e:"Workflows binden gerade externe Tools/APIs an."},
-{q:"Wie debuggt man einen Workflow systematisch?",o:["Einzelknoten schrittweise ausführen.","Inputs/Outputs prüfen und den Datenfluss nachvollziehen.","Fehler eingrenzen.","Den gesamten Workflow löschen und neu raten."],c:[0,1,2],e:"Systematisches Eingrenzen statt Raten."},
-{q:"Ordne die Datenbegriffe zu:",o:["Datensammlung = vorhandene Daten erfassen.","Datenanreicherung = vorhandene Daten mit weiteren Infos ergänzen.","Datengenerierung = neue (synthetische) Daten erzeugen.","Web Scraping = Daten manuell abtippen."],c:[0,1,2],e:"Scraping ist automatisiertes Extrahieren, nicht manuelles Abtippen."},
-{q:"Was gilt für Betreiber (Deployer) beim KI-Einsatz?",o:["Art. 4: ausreichende KI-Kompetenz der bedienenden Mitarbeitenden sicherstellen.","Die GPAI-Modellpflichten liegen beim Modellanbieter (z. B. OpenAI).","Transparenzpflichten (Art. 50) sind einzuhalten.","Der Deployer muss das LLM selbst von Grund auf trainieren."],c:[0,1,2],e:"Der Deployer trainiert kein Modell – er nutzt das GPAI-Modell des Anbieters."},
-{q:"Was beschreibt Retrieval-Augmented Generation (RAG)?",o:["Relevante Dokumente werden abgerufen und dem LLM als Kontext mitgegeben.","Es reduziert Halluzinationen durch belegbare Quellen.","Das Modell muss dafür neu trainiert werden.","Eignet sich für aktuelles oder unternehmensspezifisches Wissen."],c:[0,1,3],e:"RAG liefert Wissen zur Laufzeit als Kontext – ein Neutraining ist nicht nötig."},
-{q:"Was trifft auf Embeddings und Vektordatenbanken zu?",o:["Embeddings bilden Texte als Zahlenvektoren ab.","Ähnliche Bedeutungen liegen im Vektorraum nahe beieinander.","Vektordatenbanken ermöglichen semantische Ähnlichkeitssuche.","Ein Embedding ist dasselbe wie ein Passwort-Hash."],c:[0,1,2],e:"Embeddings kodieren Bedeutung als Vektor; ein Hash dient einem anderen Zweck."},
-{q:"Warum teilt man Dokumente bei RAG in 'Chunks'?",o:["Damit sie in Kontextfenster und Embeddings passen.","Für gezieltere, relevantere Treffer.","Damit das LLM neu trainiert wird.","Zu große Chunks können die Relevanz verwässern."],c:[0,1,3],e:"Chunking betrifft Aufbereitung und Suche, nicht das Training."},
-{q:"Was bewirkt der Parameter 'Temperature'?",o:["Niedrig = deterministischer und fokussierter.","Hoch = kreativer und zufälliger.","Für Fakten/Klassifikation eher niedrig wählen.","Er regelt die Rechenkosten pro Token."],c:[0,1,2],e:"Temperature steuert die Zufälligkeit, nicht die Kosten."},
-{q:"Was stimmt zu Tokens und Tokenisierung?",o:["Ein Token ist meist ein Wortteil, nicht zwingend ein ganzes Wort.","Kosten und Kontextlimit werden in Tokens gerechnet.","Lange Wörter/Umlaute können mehr Tokens erzeugen.","Ein Token entspricht immer genau einem Zeichen."],c:[0,1,2],e:"Tokens sind Wortfragmente, nicht einzelne Zeichen."},
-{q:"Warum lässt man ein LLM strukturiert (z. B. JSON) ausgeben?",o:["Maschinell weiterverarbeitbar in Folgeknoten.","Klare, prüfbare Felder statt Freitext.","Reduziert Fehler beim Parsen.","Verhindert grundsätzlich jede Halluzination."],c:[0,1,2],e:"Struktur erleichtert die Verarbeitung, verhindert aber keine Halluzination."},
-{q:"Was beschreibt 'Function Calling' / Tool Use?",o:["Das LLM schlägt strukturiert einen Tool-Aufruf mit Parametern vor.","Die Ausführung übernimmt kontrolliert das System, nicht das LLM.","Ermöglicht Zugriff auf aktuelle Daten oder Aktionen.","Das LLM führt beliebigen Code eigenmächtig aus."],c:[0,1,2],e:"Das LLM schlägt den Aufruf vor; die Ausführung liegt beim System."},
-{q:"Was ist 'Chain-of-Thought'-Prompting?",o:["Das Modell wird zu schrittweisem Vorgehen angeleitet.","Kann die Qualität bei komplexen Aufgaben verbessern.","Erhöht in der Regel Token-Anzahl und Kosten.","Garantiert immer die richtige Antwort."],c:[0,1,2],e:"CoT hilft oft, garantiert aber keine Korrektheit."},
-{q:"Was gilt bei einer Datenpanne (Data Breach)?",o:["Meldung an die Aufsichtsbehörde i. d. R. binnen 72 Stunden (Art. 33).","Bei hohem Risiko Benachrichtigung der Betroffenen (Art. 34).","Der Vorfall ist zu dokumentieren.","Datenpannen müssen nie gemeldet werden."],c:[0,1,2],e:"Art. 33/34 verlangen Meldung/Benachrichtigung – nicht Verschweigen."},
-{q:"Ordne die DSGVO-Rollen zu:",o:["Verantwortlicher = entscheidet über Zwecke und Mittel.","Auftragsverarbeiter = verarbeitet weisungsgebunden im Auftrag.","Betroffene Person = deren Daten verarbeitet werden.","Auftragsverarbeiter = bestimmt frei die Verarbeitungszwecke."],c:[0,1,2],e:"Der Auftragsverarbeiter bestimmt die Zwecke nicht selbst."},
-{q:"Was gilt für General-Purpose-AI-Modelle (GPAI)?",o:["Vielseitig einsetzbare Basismodelle (z. B. GPT).","Modellpflichten (techn. Doku, Urheberrecht, Trainingsdaten-Transparenz) liegen beim Anbieter.","Bei Systemrisiko gelten zusätzliche Pflichten.","Der bloße API-Nutzer wird dadurch selbst zum Modellanbieter."],c:[0,1,2],e:"API-Nutzung macht den Deployer nicht zum GPAI-Anbieter."},
-{q:"Welche Praktiken sind nach Art. 5 EU AI Act verboten?",o:["Social Scoring durch Behörden.","Unterschwellige Manipulation mit Schadenspotenzial.","Ausnutzen von Schutzbedürftigkeit (z. B. Alter, Behinderung).","Ein KI-gestützter Angebotsgenerator."],c:[0,1,2],e:"Ein Angebotsgenerator ist keine verbotene Praktik."},
-{q:"Was bedeutet 'Excessive Agency' als LLM-Risiko?",o:["Der Agent hat mehr Rechte/Funktionen als nötig.","Gegenmaßnahme: Least Privilege und enge Tool-Rechte.","Menschliche Freigabe für folgenreiche Aktionen.","Mehr Rechte machen einen Agenten grundsätzlich sicherer."],c:[0,1,2],e:"Zu viele Rechte erhöhen das Schadenspotenzial."},
-{q:"Wie verhindert man Datenabfluss ans Cloud-LLM?",o:["Pseudonymisierung/Platzhalter statt Klarnamen.","Datenminimierung – nur nötige Felder übergeben.","Prompt-Injection-Härtung gegen Exfiltration.","Möglichst alle Kundendaten mitschicken."],c:[0,1,2],e:"Datenminimierung ist das Gegenteil von 'alles mitschicken'."},
-{q:"Was sind 'Guardrails' bei Agenten?",o:["Definierte Grenzen für erlaubtes Verhalten.","Können Ein- und Ausgaben filtern oder prüfen.","Reduzieren Fehlverhalten und Missbrauch.","Machen jede menschliche Kontrolle überflüssig."],c:[0,1,2],e:"Guardrails ersetzen nicht die menschliche Aufsicht."},
-{q:"Was trifft auf n8n-Ausdrücke und den Datenfluss zu?",o:["Mit {{ }} greift man auf Daten vorheriger Knoten zu.","$json verweist auf die Daten des aktuellen Items.","Ein IF/Switch steuert die Verzweigung.","Ein Knoten kann die Daten des Trigger-Knotens nicht referenzieren."],c:[0,1,2],e:"Auch die Daten des Triggers sind per Referenz erreichbar."},
-{q:"Was trifft auf Evaluierung mit 'LLM-as-a-Judge' zu?",o:["Ein LLM bewertet Ausgaben nach definierten Kriterien.","Skaliert Bewertungen günstiger als rein manuell.","Sollte gegen Referenz-/Testfälle validiert werden.","Ersetzt jede menschliche Qualitätskontrolle vollständig."],c:[0,1,2],e:"Auch ein LLM-Judge braucht Validierung und menschliche Stichproben."},
-{q:"Wie senkt man LLM-Kosten sinnvoll?",o:["Kleineres Modell für einfache Teilaufgaben wählen.","Prompt-Caching für wiederkehrende Kontexte nutzen.","Prompt/Kontext auf das Nötige kürzen.","Grundsätzlich immer das teuerste Modell verwenden."],c:[0,1,2],e:"Modellwahl nach Bedarf – nicht pauschal das teuerste Modell."},
-{q:"Wann ist RAG statt Fine-Tuning sinnvoll?",o:["Wenn sich das Wissen häufig ändert / aktuell sein muss.","Wenn Antworten belegbar sein sollen.","Wenn kein teures Neutraining gewünscht ist.","Wenn ein fester Stil/Ton dauerhaft antrainiert werden soll."],c:[0,1,2],e:"Für dauerhaftes Stil-/Verhaltenslernen eignet sich eher Fine-Tuning."},
-{q:"Ordne die Chat-Rollen zu:",o:["system = Rahmen, Rolle und Regeln.","user = Eingabe des Nutzers.","assistant = Antwort des Modells.","system = die Fehlermeldung der API."],c:[0,1,2],e:"Die system-Rolle setzt den Rahmen, sie ist keine Fehlermeldung."},
-{q:"Was beschreibt die typische Agenten-Schleife (z. B. ReAct)?",o:["Beobachten → Nachdenken → Handeln (Tool) → wiederholen.","Zwischenergebnisse fließen in den nächsten Schritt ein.","Der Agent kann bei erreichtem Ziel stoppen.","Er führt immer genau einen einzigen Schritt aus."],c:[0,1,2],e:"Agenten iterieren mehrere Schritte, bis das Ziel erreicht ist."},
-{q:"Wann ist eine Datenschutz-Folgenabschätzung (Art. 35) nötig?",o:["Bei voraussichtlich hohem Risiko für Betroffene.","Bei umfangreicher Verarbeitung sensibler Daten.","Bei systematischer, umfangreicher Bewertung/Profiling.","Bei jeder noch so kleinen Verarbeitung zwingend."],c:[0,1,2],e:"Die DSFA ist risikobasiert, nicht für jede Verarbeitung Pflicht."},
-{q:"Was macht eine Einwilligung wirksam (Art. 7)?",o:["Sie ist freiwillig.","Sie ist informiert und für einen bestimmten Zweck.","Sie ist jederzeit widerrufbar.","Sie gilt stillschweigend durch Nichtstun."],c:[0,1,2],e:"Vorangekreuzte Kästchen oder Schweigen sind keine wirksame Einwilligung."},
-{q:"Was besagt der Grundsatz der Zweckbindung (Art. 5)?",o:["Daten nur für festgelegte, eindeutige Zwecke erheben.","Keine unvereinbare Weiterverarbeitung.","Der Zweck muss vorab feststehen.","Einmal erhobene Daten dürfen für alles genutzt werden."],c:[0,1,2],e:"Eine zweckfremde Nutzung widerspricht der Zweckbindung."},
-{q:"Was stimmt zum EU AI Act allgemein?",o:["Er gilt EU-weit als Verordnung.","Die Verbote (Art. 5) greifen zuerst, weitere Pflichten gestaffelt.","Er ist risikobasiert aufgebaut.","Er gilt nur für US-Unternehmen."],c:[0,1,2],e:"Der AI Act gilt für Anbieter/Betreiber im EU-Markt, unabhängig vom Sitz."},
-{q:"Warum ist 'Insecure Output Handling' ein Risiko?",o:["LLM-Ausgaben können Schadcode/Injektionen enthalten.","Ausgaben sollten vor Weiterverarbeitung validiert werden.","Ungeprüft in DB/HTML übernommen können sie gefährlich sein.","LLM-Ausgaben sind immer sicher und brauchen keine Prüfung."],c:[0,1,2],e:"LLM-Ausgaben sind unvertrauenswürdige Eingaben für Folgesysteme."},
-{q:"Wie setzt man Least Privilege für einen Agenten um?",o:["Nur die für die Aufgabe nötigen Tool-/Datenrechte.","Schreibrechte nur, wo wirklich nötig.","Getrennte, eng begrenzte Credentials.","Ein Admin-Zugang für alles der Einfachheit halber."],c:[0,1,2],e:"Ein Allzugang widerspricht Least Privilege."},
-{q:"Wie geht man mit Fehlern in n8n systematisch um?",o:["Error-Workflow/Trigger für Fehlerfälle.","Einzelknoten testen und Datenfluss prüfen.","Retry-/Fallback-Logik vorsehen.","Fehler ignorieren und auf gutes Gelingen hoffen."],c:[0,1,2],e:"Fehler ignorieren ist keine Fehlerbehandlung."},
-{q:"Was gilt für Credentials in n8n?",o:["Werden getrennt vom Workflow gespeichert und nur referenziert.","Sollten nicht im Klartext im Export stehen.","Least-Privilege-Scopes wählen.","Gehören fest in den Prompt-Text."],c:[0,1,2],e:"Zugangsdaten gehören nie in Prompt-Text oder Klartext-Export."},
-{q:"Was gehört zu einer soliden Agenten-Evaluierung?",o:["Definierte Testfälle (Golden Set).","Regressionstests nach Änderungen.","Kennzahlen wie Fehlerquote/Trefferrate.","Ein einziger Beispiel-Durchlauf genügt."],c:[0,1,2],e:"Ein Einzeldurchlauf ist keine belastbare Evaluierung."},
-{q:"Was gilt für Datenqualität und Bias?",o:["Schlechte Daten führen zu schlechten Ergebnissen.","Verzerrte Daten können Bias erzeugen.","Repräsentative, saubere Daten verbessern die Qualität.","Mehr Daten sind immer automatisch besser, egal welche."],c:[0,1,2],e:"Menge ersetzt nicht Qualität und Repräsentativität."},
-{q:"Wie macht man Antworten überprüfbar (Grounding)?",o:["Quellen/Belege mitgeben (z. B. via RAG).","Nur belegte Fakten zulassen.","Bei Unsicherheit eskalieren statt raten.","Temperature maximal setzen."],c:[0,1,2],e:"Hohe Temperature fördert eher freies Erfinden."},
-{q:"Was trifft auf das Antwortverhalten von LLMs zu?",o:["Streaming zeigt Tokens fortlaufend an (bessere UX).","Größere Modelle sind oft langsamer und teurer.","Latenz hängt u. a. von Modell und Token-Menge ab.","Streaming reduziert die Gesamtzahl der Tokens."],c:[0,1,2],e:"Streaming ändert die UX, nicht die Token-Menge."},
-{q:"Was bedeutet 'multimodal' bei KI-Modellen?",o:["Verarbeitung mehrerer Eingabearten (Text, Bild, Audio).","Ein Modell kann z. B. ein Bild beschreiben.","Erweitert Anwendungsfälle über reinen Text hinaus.","Es bedeutet, dass mehrere Nutzer gleichzeitig chatten."],c:[0,1,2],e:"Multimodal bezieht sich auf Datentypen, nicht auf die Nutzerzahl."},
-{q:"Ordne die Arten von Agent-Memory zu:",o:["Kurzzeitgedächtnis = aktueller Kontext/Verlauf.","Langzeitgedächtnis = dauerhaft gespeichertes Wissen.","Externer Speicher (DB/Vektorstore) erweitert das Gedächtnis.","Memory meint die GPU-Größe des Servers."],c:[0,1,2],e:"Memory meint Informationsspeicherung, nicht Hardware."},
-{q:"Warum ist Vorsicht bei Aktionen mit Außenwirkung wichtig?",o:["Mehrfachausführung kann doppelte Mails/Buchungen erzeugen.","Prüfungen/Idempotenz vermeiden Doppelaktionen.","Harte Freigabe vor unwiderruflichen Schritten.","Doppelte Ausführung ist immer harmlos."],c:[0,1,2],e:"Unkontrollierte Wiederholung kann realen Schaden anrichten."},
-{q:"[Projekt] Wie setzt die WebWorks-Lösung Transparenz um?",o:["Hinweis in jeder KI-generierten Kundenmail (Art. 50).","Datenschutzhinweis im Formular vor dem Absenden.","Datenschutzerklärung auf der Website.","Selbst verfasste Mitarbeiter-Antworten tragen bewusst keinen KI-Hinweis."],c:[0,1,2,3],e:"Alle vier stimmen: KI-Mails werden gekennzeichnet, rein menschliche Antworten nicht."},
-{q:"[Projekt] Was leistet die 2-Zonen-Architektur?",o:["Klartext-PII bleibt im Tresor (Vertrauenszone).","LLM/Mitarbeiter arbeiten nur mit Platzhaltern (Arbeitszone).","Re-Identifikation erst beim Versand.","Sie macht die DSGVO für pseudonyme Daten unanwendbar."],c:[0,1,2],e:"Pseudonyme Daten bleiben personenbezogen – die DSGVO gilt weiter."},
-{q:"[Projekt] Warum entscheidet ein DB-Lookup (nicht das LLM) über Bestand/Neu?",o:["Sicherheitskritische Logik gehört in deterministische Knoten.","Per Prompt nicht manipulierbar.","Reproduzierbare, nachvollziehbare Entscheidung.","Weil das LLM keine Texte verarbeiten kann."],c:[0,1,2],e:"Das LLM kann Texte verarbeiten – das Routing wird nur bewusst deterministisch gehalten."},
-{q:"[Projekt] Wann übergibt der Agent an den Menschen (unklar-Fall)?",o:["Wenn wichtige Angaben fehlen (z. B. Seitenumfang).","Wenn der Bedarf zu unklar beschrieben ist.","Bei Verdacht auf eingebettete Anweisungen (Prompt Injection).","Immer, auch wenn alle Angaben vollständig und klar sind."],c:[0,1,2],e:"Bei vollständigen, klaren Angaben erstellt der Agent direkt ein Angebot."}
+{t:"LLM",q:"Was trifft auf große Sprachmodelle (LLMs) zu?",o:["Sie sagen das wahrscheinlichste nächste Token voraus.","Ein- und Ausgabe werden in Tokens gemessen.","Sie besitzen echtes Verständnis und Bewusstsein.","Sie können plausibel klingende, aber falsche Aussagen erzeugen."],c:[0,1,3],e:"LLMs sind statistische Vorhersagemodelle ohne Bewusstsein; Halluzinationen sind möglich."},
+{t:"LLM",q:"Was ist das Kontextfenster eines LLM?",o:["Die max. Menge an Tokens (Ein- + Ausgabe), die gleichzeitig verarbeitet wird.","Die Zahl gleichzeitiger Nutzer.","Die Trainingsdauer des Modells.","Bei Überschreitung wird älterer Kontext abgeschnitten."],c:[0,3],e:"Das Kontextfenster begrenzt die gleichzeitig verarbeitbaren Tokens; Überlauf führt zu Abschneiden."},
+{t:"LLM",q:"Der Parameter „Temperature“ …",o:["niedrig = deterministischer/fokussierter.","hoch = kreativer/zufälliger.","sollte für Fakten/Klassifikation eher niedrig sein.","bestimmt die Token-Kosten."],c:[0,1,2],e:"Temperature steuert die Zufälligkeit, nicht die Kosten."},
+{t:"LLM",q:"Was stimmt zu Tokens?",o:["Ein Token ist oft ein Wortteil.","Kosten und Kontextlimit rechnen in Tokens.","Lange/seltene Wörter erzeugen mehr Tokens.","Ein Token entspricht genau einem Zeichen."],c:[0,1,2],e:"Tokens sind Wortfragmente, nicht einzelne Zeichen."},
+{t:"LLM",q:"Wodurch reduziert man Halluzinationen?",o:["Klare Rolle/Anweisung im Prompt.","Belege/Quellen via RAG.","Temperature möglichst hoch.","Bei Unsicherheit an den Menschen eskalieren."],c:[0,1,3],e:"Hohe Temperature erhöht Halluzinationen."},
+{t:"LLM/Agent",q:"Welche gehören zu den Bausteinen eines Agenten?",o:["Modell (das Gehirn: plant/entscheidet).","Tools (die Hände: APIs, Code, Web).","Speicher, Planung und Feedback.","Ein eigener physischer Server pro Agent."],c:[0,1,2],e:"Bausteine sind Modell, Tools, Speicher, Planung und Feedback – kein eigener Server nötig."},
+{t:"LLM",q:"Was ist ein System Prompt?",o:["Übergeordnete Instruktion für Rolle/Verhalten/Grenzen.","Die erste Nutzernachricht im Chat.","Setzt den Rahmen für alle Antworten.","Die Fehlermeldung der API."],c:[0,2],e:"Der System Prompt definiert den Rahmen des Agenten."},
+{t:"LLM",q:"Wann ist RAG statt Fine-Tuning sinnvoll?",o:["Wissen ändert sich häufig / muss aktuell sein.","Antworten sollen belegbar sein.","Kein teures Neutraining gewünscht.","Ein fester Stil soll dauerhaft antrainiert werden."],c:[0,1,2],e:"Für dauerhaften Stil eignet sich eher Fine-Tuning."},
+{t:"LLM",q:"Was trifft auf Embeddings zu?",o:["Sie bilden Text als Zahlenvektoren ab.","Ähnliche Bedeutung liegt im Vektorraum nah beieinander.","Gängige OpenAI-Embeddings haben z. B. 1536 Dimensionen.","Ein Embedding ist ein Passwort-Hash."],c:[0,1,2],e:"Embeddings kodieren Bedeutung als Vektor (z. B. 1536 Dim.), kein Hash."},
+{t:"LLM",q:"Ordne die Chat-Rollen zu:",o:["system = Rahmen/Regeln.","user = Nutzereingabe.","assistant = Modellantwort.","system = die API-Fehlermeldung."],c:[0,1,2],e:"Die system-Rolle setzt den Rahmen, keine Fehlermeldung."},
+
+{t:"Prompt Eng.",q:"Was gehört in einen guten Prompt?",o:["Klare Rolle.","Kontext + gewünschtes Ausgabeformat.","Beispiele (Few-Shot) bei Bedarf.","Möglichst viele widersprüchliche Anweisungen."],c:[0,1,2],e:"Widersprüche verschlechtern die Ergebnisse."},
+{t:"Prompt Eng.",q:"Chain-of-Thought-Prompting …",o:["leitet zu schrittweisem Vorgehen an.","kann komplexe Aufgaben verbessern.","erhöht meist Tokens/Kosten.","garantiert die richtige Antwort."],c:[0,1,2],e:"CoT hilft oft, garantiert aber nichts."},
+{t:"Prompt Eng.",q:"Few-Shot-Prompting bedeutet …",o:["Beispiele im Prompt mitgeben.","dem Modell das gewünschte Muster zeigen.","das Modell mit neuen Daten trainieren.","kann Formattreue verbessern."],c:[0,1,3],e:"Few-Shot ist Prompting mit Beispielen, kein Training."},
+{t:"Prompt Eng.",q:"Warum strukturierte (JSON-)Ausgabe?",o:["Maschinell weiterverarbeitbar.","Klare, prüfbare Felder.","Weniger Parse-Fehler.","Verhindert jede Halluzination."],c:[0,1,2],e:"Struktur hilft der Verarbeitung, verhindert keine Halluzination."},
+{t:"Prompt Eng.",q:"Warum Nutzereingaben klar abgrenzen (z. B. mit Delimitern)?",o:["Trennt Anweisung von Daten.","Reduziert Prompt-Injection-Risiko.","Erhöht die Kosten drastisch.","Macht die Verarbeitung robuster."],c:[0,1,3],e:"Abgrenzung erhöht Robustheit/Sicherheit, nicht die Kosten drastisch."},
+{t:"Prompt Eng.",q:"Was verbessert die Prompt-Qualität?",o:["Konkret sagen, was zu tun ist.","Format/Länge vorgeben.","Rollen und Grenzen definieren.","Vage bleiben, damit das Modell frei ist."],c:[0,1,2],e:"Konkretheit schlägt Vagheit."},
+{t:"Prompt Eng.",q:"Guardrails im System Prompt …",o:["definieren erlaubtes Verhalten.","können Themen/Aktionen ausschließen.","geben dem Agenten klare Grenzen.","ersetzen jede weitere Sicherheitsmaßnahme."],c:[0,1,2],e:"Guardrails ergänzen, ersetzen aber nicht alle Maßnahmen."},
+
+{t:"Multi-Agent",q:"Was trifft auf ein Multi-Agent-System mit Orchestrator zu?",o:["Ein Orchestrator plant und verteilt Teilaufgaben.","Spezialisierte Rollen reduzieren die Angriffsfläche.","Ein Reviewer kann Ergebnisse prüfen.","Jeder Sub-Agent braucht volle Systemrechte."],c:[0,1,2],e:"Least Privilege gilt auch für Sub-Agenten."},
+{t:"Multi-Agent",q:"Vorteile spezialisierter Sub-Agenten?",o:["Klarere Zuständigkeit.","Bessere Wartbarkeit/Testbarkeit.","Fokussiertere Prompts.","Immer geringere Kosten."],c:[0,1,2],e:"Mehr Agenten/Aufrufe können Kosten sogar erhöhen."},
+{t:"Multi-Agent",q:"Wie arbeiten Agenten zusammen?",o:["Über definierte Schnittstellen/Nachrichten.","Ein Agent nutzt Output eines anderen als Input.","Ergebnisse können von einem Prüf-Agenten validiert werden.","Nur durch eine gemeinsame GPU."],c:[0,1,2],e:"Zusammenarbeit läuft über Schnittstellen, nicht Hardware."},
+{t:"Multi-Agent",q:"Das Supervisor-Worker-Muster …",o:["Supervisor koordiniert, Worker führen aus.","erlaubt parallele Bearbeitung.","kann Teilergebnisse zusammenführen.","braucht keinerlei Fehlerbehandlung."],c:[0,1,2],e:"Fehlerbehandlung bleibt nötig."},
+{t:"Multi-Agent",q:"Was ist bei Übergaben (Handoffs) wichtig?",o:["Klarer Kontext-Transfer.","Definierte Zuständigkeit.","Eskalation an den Menschen bei Unklarheit.","Kontext einfach verwerfen."],c:[0,1,2],e:"Kontext muss übergeben, nicht verworfen werden."},
+{t:"Multi-Agent",q:"Risiken bei Multi-Agent-Systemen?",o:["Fehler können sich fortpflanzen.","Höhere Komplexität/Kosten.","Schwerer nachvollziehbar.","Grundsätzlich unmöglich abzusichern."],c:[0,1,2],e:"Absicherung ist möglich (Guardrails, Review, Least Privilege)."},
+{t:"Multi-Agent",q:"Planung in Agentensystemen bedeutet …",o:["Aufgaben in Teilschritte zerlegen.","Reihenfolge/Abhängigkeiten bestimmen.","Zwischenergebnisse nutzen.","immer alles in einem Schritt lösen."],c:[0,1,2],e:"Agenten planen mehrschrittig."},
+{t:"Multi-Agent",q:"Wozu ein Reviewer-/Reflection-Schritt?",o:["Ergebnisse gegen Kriterien prüfen.","Fehler vor der Ausgabe abfangen.","Qualität erhöhen.","Er ersetzt jede menschliche Kontrolle."],c:[0,1,2],e:"Auch mit Review bleibt menschliche Kontrolle sinnvoll."},
+
+{t:"Agent Memory",q:"Was beschreibt Agent-Memory?",o:["Infos über einzelne Aufrufe hinaus speichern.","Kurz- und Langzeitgedächtnis.","Externer Speicher (DB/Vektorstore) erweitert es.","Die GPU-Größe des Servers."],c:[0,1,2],e:"Memory = Informationsspeicherung, nicht Hardware."},
+{t:"Agent Memory",q:"Ordne die Memory-Arten zu:",o:["Kurzzeit = aktueller Kontext/Verlauf.","Langzeit = dauerhaft gespeichert.","Langzeit oft in einer Vektor-DB.","Kurzzeit ist unbegrenzt."],c:[0,1,2],e:"Kurzzeit ist durch das Kontextfenster begrenzt."},
+{t:"Agent Memory",q:"Vektordatenbanken …",o:["speichern Embeddings.","ermöglichen semantische Ähnlichkeitssuche.","liefern relevante Erinnerungen/Dokumente.","sind klassische SQL-Tabellen."],c:[0,1,2],e:"Vektor-DBs suchen semantisch, nicht rein relational."},
+{t:"Agent Memory",q:"Retrieval-Augmented Generation (RAG) …",o:["ruft relevante Dokumente ab und gibt sie als Kontext.","reduziert Halluzinationen durch Belege.","eignet sich für aktuelles/eigenes Wissen.","erfordert ein Neutraining des Modells."],c:[0,1,2],e:"RAG braucht kein Neutraining."},
+{t:"Agent Memory",q:"Warum Chunking bei RAG?",o:["Passt in Kontext und Embeddings.","Gezieltere, relevantere Treffer.","Zu große Chunks verwässern die Relevanz.","Es trainiert das Modell neu."],c:[0,1,2],e:"Chunking betrifft die Aufbereitung, nicht das Training."},
+{t:"Agent Memory",q:"Was gilt für Text-Embeddings?",o:["Jeder Abschnitt wird auf einen Vektor fester Länge abgebildet.","Gängige OpenAI-Embeddings nutzen z. B. 1536 Dimensionen.","Ähnlichkeit wird über den Vektorabstand berechnet.","Die Dimension ist pro Wort beliebig verschieden."],c:[0,1,2],e:"Ein Embedding-Modell hat eine feste Dimensionszahl."},
+{t:"Agent Memory",q:"Wie verbessert man die Trefferqualität bei RAG?",o:["Gute Chunk-Größe.","Re-Ranking der Treffer.","Hybride Suche (semantisch + Stichwort).","Immer alle Dokumente mitgeben."],c:[0,1,2],e:"Alles mitgeben sprengt Kontext/Kosten und senkt Relevanz."},
+{t:"Agent Memory",q:"Wozu persistentes Memory?",o:["Nutzerpräferenzen über Sitzungen halten.","Wiederkehrende Fakten wiederverwenden.","Personalisierung ermöglichen.","Es ersetzt jede Datenbank."],c:[0,1,2],e:"Memory ersetzt keine vollwertige DB."},
+{t:"Agent Memory",q:"Grenzen von Memory?",o:["Datenschutz bei gespeicherten Personendaten.","Veraltete/irrelevante Erinnerungen.","Kosten und Größe.","Unbegrenzt und kostenlos."],c:[0,1,2],e:"Memory ist weder unbegrenzt noch kostenlos."},
+
+{t:"Integration",q:"Ordne die Integrationsarten zu:",o:["API = aktives Abfragen (Request/Response).","Webhook = ereignisgesteuerter Push.","GraphQL = Client fragt gezielt Felder ab.","Webhook = man fragt aktiv beim Server an."],c:[0,1,2],e:"Webhook ist Push, nicht Pull."},
+{t:"Integration",q:"Was trifft auf REST-APIs zu?",o:["Kommunikation über HTTP-Methoden (GET/POST …).","Request und Response, oft als JSON.","Authentifizierung z. B. per API-Key/Token.","Sie sind ereignisgetrieben ohne Anfrage."],c:[0,1,2],e:"REST ist anfragebasiert, nicht Push."},
+{t:"Integration",q:"Ein Webhook …",o:["wird durch ein Ereignis ausgelöst.","sendet Daten aktiv an eine Ziel-URL.","eignet sich als Workflow-Trigger.","muss ständig aktiv pollen."],c:[0,1,2],e:"Der Webhook pusht, statt zu pollen."},
+{t:"Integration",q:"GraphQL …",o:["lässt Clients genau die benötigten Felder abfragen.","reduziert Over- und Under-Fetching.","nutzt meist einen einzigen Endpunkt.","ist ein LLM-Modell."],c:[0,1,2],e:"GraphQL ist eine Query-Schnittstelle, kein Modell."},
+{t:"Integration",q:"Model Context Protocol (MCP) …",o:["ist ein offener Standard zur Anbindung von Tools/Daten an LLMs.","standardisiert Integrationen statt Einzellösungen.","ist ein OpenAI-Modell.","ersetzt die DSGVO."],c:[0,1],e:"MCP ist ein Integrationsstandard, kein Modell/Rechtsrahmen."},
+{t:"Integration",q:"Was gilt für MCP?",o:["Server stellen Tools/Ressourcen bereit.","Clients (die LLM-App) nutzen sie standardisiert.","Reduziert individuellen Integrationsaufwand.","Funktioniert nur mit einem einzigen Anbieter."],c:[0,1,2],e:"MCP ist anbieterübergreifend gedacht."},
+{t:"Integration",q:"Polling vs. Webhook:",o:["Polling = wiederholtes aktives Nachfragen.","Webhook = Push bei Ereignis.","Webhook spart oft unnötige Anfragen.","Polling ist immer effizienter."],c:[0,1,2],e:"Polling erzeugt oft unnötige Last."},
+{t:"Integration",q:"Sicherer API-Zugriff:",o:["Tokens/Keys geheim halten.","Least-Privilege-Scopes wählen.","Keys nicht im Prompt/Klartext-Export.","Key öffentlich im Frontend einbetten."],c:[0,1,2],e:"Keys gehören nicht ins öffentliche Frontend."},
+{t:"Integration/n8n",q:"Du willst je nach Nachrichtentyp (Text vs. Sprache) verzweigen. Was stimmt?",o:["Ein Switch-Knoten bildet mehrere Ausgabepfade nach Bedingung.","Ein IF-Knoten bildet eine Ja/Nein-Verzweigung.","Der Switch prüft z. B., ob ein voice- oder text-Feld vorliegt.","Ein Filter-Knoten ist dafür der einzige Weg."],c:[0,1,2],e:"Switch = mehrere Pfade; IF = binär; Filter verwirft Items."},
+
+{t:"HITL",q:"Welche drei Freigabetypen gibt es?",o:["Hart kodiert (technischer Stopp).","Weich durch Prompt (Chat-Rückfrage).","Adaptiv durch Agent (nur bei Unklarheit).","Automatisch ohne jede Kontrolle."],c:[0,1,2],e:"„Ohne Kontrolle“ ist kein Human-in-the-Loop-Typ."},
+{t:"HITL",q:"Wann sollte man eine harte Freigabe einsetzen?",o:["Bei hoher finanzieller Auswirkung.","Bei rechtlicher/unwiderruflicher Wirkung.","Wenn Fehler teurer sind als der Automatisierungsgewinn.","Bei jeder trivialen Routine zwingend."],c:[0,1,2],e:"Für triviale Routine reicht adaptive Autonomie."},
+{t:"HITL",q:"Bezug zu Art. 22 DSGVO:",o:["keine ausschließlich automatisierte Entscheidung mit erheblicher Wirkung.","rechtfertigt Human-in-the-Loop.","ein Mensch prüft und gibt frei.","verbietet jede Form von KI."],c:[0,1,2],e:"Art. 22 fordert menschliches Eingreifen, kein KI-Verbot."},
+{t:"HITL",q:"Ein Send-and-Wait-Freigabeschritt …",o:["pausiert den Workflow technisch.","wartet auf Freigeben/Ablehnen.","verhindert automatischen Versand.","sendet sofort ohne Warten."],c:[0,1,2],e:"Er stoppt bis zur menschlichen Antwort."},
+{t:"HITL",q:"Wann sollte ein Agent an den Menschen eskalieren?",o:["Wichtige Angaben fehlen.","Der Bedarf ist zu unklar.","Verdacht auf eingebettete Anweisung (Prompt Injection).","Immer, auch bei klaren, vollständigen Angaben."],c:[0,1,2],e:"Bei klaren Angaben handelt der Agent selbst."},
+{t:"HITL",q:"Gutes HITL-Design …",o:["hält Rückfragen gering.","eskaliert nur bei Bedarf.","gibt dem Menschen einen fertigen Entwurf.","fragt bei jedem Schritt nach."],c:[0,1,2],e:"Ständiges Nachfragen frisst den Automatisierungsnutzen."},
+{t:"HITL",q:"Passende Freigabe-Kommunikation …",o:["kann per E-Mail (Send-and-Wait) erfolgen.","kann per Chat/Button erfolgen.","sollte klar und nachvollziehbar sein.","muss immer im Sheet getippt werden."],c:[0,1,2],e:"Es gibt mehrere gleichwertige Kanäle."},
+{t:"HITL",q:"Warum bleibt der Mensch verantwortlich?",o:["Qualitäts- und Rechtssicherheit.","Haftung/Freigabe liegt beim Menschen.","Der Agent kann irren/halluzinieren.","Weil der Agent nie Texte erzeugen darf."],c:[0,1,2],e:"Der Agent darf Texte erzeugen; der Mensch gibt frei."},
+
+{t:"Use Case",q:"Was kennzeichnet einen guten KI-Agenten-Use-Case?",o:["Wiederkehrende, regel- oder sprachlastige Aufgabe.","Klarer Nutzen/ROI.","Daten und Tools verfügbar.","Einmalige, kreative Einzelentscheidung ohne Muster."],c:[0,1,2],e:"Agentische Automatisierung lohnt bei wiederkehrenden Abläufen."},
+{t:"Use Case",q:"Wie priorisiert man Use Cases?",o:["Nutzen vs. Aufwand.","Datenverfügbarkeit.","Risiko/Regulatorik.","Nur nach persönlichem Interesse."],c:[0,1,2],e:"Priorisierung ist nutzen- und machbarkeitsbasiert."},
+{t:"Use Case",q:"Welche Aufgaben eignen sich für Agenten?",o:["Strukturierte, wiederholbare Prozesse.","Text-/Sprachverarbeitung.","Recherche/Zusammenfassung.","Rein zwischenmenschliche Vertrauensentscheidungen."],c:[0,1,2],e:"Sensible zwischenmenschliche Entscheidungen bleiben beim Menschen."},
+{t:"Use Case",q:"Was ist ein „agentischer Browser“?",o:["Ein KI-gesteuerter Agent, der Webseiten und teils Desktop-Apps bedient.","Kann Aufgaben über die Oberfläche automatisieren.","Ein Plugin, das Seiten nur schneller lädt.","Eine reine Notation für Geschäftsprozesse."],c:[0,1],e:"Ein agentischer Browser steuert Anwendungen aktiv; die anderen beschreiben etwas anderes."},
+{t:"Use Case",q:"Wann ist ein Agent NICHT die beste Lösung?",o:["Wenn ein einfaches Skript/Regelsystem reicht.","Wenn kein klarer Nutzen besteht.","Wenn die nötigen Daten fehlen.","Immer, wenn Text vorkommt."],c:[0,1,2],e:"Nicht jede Textaufgabe braucht einen Agenten."},
+{t:"Use Case",q:"Machbarkeit prüfen heißt …",o:["Datenzugang klären.","Tools/APIs auf Verfügbarkeit prüfen.","Risiken/Compliance bedenken.","erst nach dem Bau prüfen."],c:[0,1,2],e:"Machbarkeit prüft man vorab."},
+{t:"Use Case",q:"Sinnvolles Vorgehen bei einem neuen Use Case?",o:["Klein starten (MVP).","Iterativ verbessern.","Früh evaluieren.","Sofort voll produktiv ohne Test."],c:[0,1,2],e:"Erst testen, dann skalieren."},
+
+{t:"AaaS",q:"Was meint „Agents as a Service“?",o:["Agenten als bereitgestellter, aufrufbarer Dienst.","Zugriff meist über API/Schnittstelle.","Betrieb/Skalierung durch den Anbieter.","Nur lokal ohne Netz nutzbar."],c:[0,1,2],e:"AaaS ist ein bereitgestellter Dienst, i. d. R. über API."},
+{t:"AaaS",q:"Was gehört zum Betrieb eines Agenten-Service?",o:["Monitoring/Logging.","Versionierung/Updates.","Fehlerbehandlung/Skalierung.","Einmal starten und nie warten."],c:[0,1,2],e:"Betrieb erfordert laufende Wartung."},
+{t:"AaaS",q:"Wichtig für einen produktiven Agenten-Dienst?",o:["Verfügbarkeit/Zuverlässigkeit.","Sicherheit/Zugriffskontrolle.","Nachvollziehbarkeit (Logs).","Beliebige, unkontrollierte Rechte."],c:[0,1,2],e:"Kontrollierte Rechte statt beliebiger."},
+{t:"AaaS",q:"Kosten eines Agenten-Service hängen ab von …",o:["Nutzungsmenge (Tokens/Aufrufe).","gewähltem Modell.","zusätzlichen Diensten (Speicher/Tools).","der Bildschirmgröße des Nutzers."],c:[0,1,2],e:"Kosten skalieren mit Nutzung/Modell/Infrastruktur."},
+{t:"AaaS",q:"Wie bindet man einen Agenten-Service an?",o:["über eine API/Webhook.","mit Authentifizierung.","mit klar definiertem Ein-/Ausgabeformat.","nur per Copy-Paste im Chat."],c:[0,1,2],e:"Dienste werden über definierte Schnittstellen angebunden."},
+{t:"AaaS",q:"Bei mehreren Kunden auf einem Dienst ist wichtig:",o:["Datentrennung pro Mandant.","Zugriffskontrolle.","Datenschutz/DSGVO.","Alle Daten in einen Topf."],c:[0,1,2],e:"Mandantentrennung ist Pflicht."},
+
+{t:"Daten",q:"Ordne die Datenbegriffe zu:",o:["Datensammlung = vorhandene Daten erfassen.","Datenanreicherung = Daten mit weiteren Infos ergänzen.","Datengenerierung = neue (synthetische) Daten erzeugen.","Web Scraping = Daten manuell abtippen."],c:[0,1,2],e:"Scraping ist automatisiertes Extrahieren, kein Abtippen."},
+{t:"Daten",q:"Synthetische Daten …",o:["werden künstlich erzeugt.","können echte Daten ergänzen (z. B. bei Mangel).","brauchen eine Qualitätsprüfung.","sind immer besser als echte Daten."],c:[0,1,2],e:"Synthetische Daten ersetzen echte nicht pauschal."},
+{t:"Daten",q:"Datenqualität und Bias:",o:["Schlechte Daten führen zu schlechten Ergebnissen.","Verzerrte Daten erzeugen Bias.","Repräsentative, saubere Daten helfen.","Mehr Daten sind immer automatisch besser."],c:[0,1,2],e:"Menge ersetzt nicht Qualität."},
+{t:"Daten",q:"Datenanreicherung kann bedeuten …",o:["fehlende Felder ergänzen.","externe Quellen hinzuziehen.","Kategorien/Labels hinzufügen.","Daten löschen."],c:[0,1,2],e:"Anreicherung fügt hinzu, löscht nicht."},
+{t:"Daten",q:"Bei Web Scraping beachten:",o:["rechtliche Grenzen/Nutzungsbedingungen.","Datenschutz bei Personendaten.","robots.txt / faire Nutzung.","alles ist frei nutzbar."],c:[0,1,2],e:"Scraping hat rechtliche Grenzen."},
+{t:"Daten",q:"Datenlabeling …",o:["versieht Daten mit Zielinformationen.","ist Grundlage für überwachtes Lernen.","kann die Qualität stark beeinflussen.","ist bei reiner LLM-API-Nutzung immer nötig."],c:[0,1,2],e:"Bei reiner API-Nutzung braucht man oft kein eigenes Labeling."},
+
+{t:"Erfolgsmessung",q:"Wie misst man den Erfolg eines Agenten?",o:["Business-Value (z. B. Zeitersparnis).","technische Zuverlässigkeit (Fehlerquote).","Evaluationen mit Testfällen.","Anzahl der Codezeilen."],c:[0,1,2],e:"Codezeilen sagen nichts über Erfolg."},
+{t:"Erfolgsmessung",q:"Was gehört zu einer soliden Evaluierung?",o:["definierte Testfälle (Golden Set).","Regressionstests nach Änderungen.","Kennzahlen wie Trefferquote.","ein einziger Beispiel-Durchlauf."],c:[0,1,2],e:"Ein Einzeldurchlauf ist nicht belastbar."},
+{t:"Erfolgsmessung",q:"„LLM-as-a-Judge“ …",o:["ein LLM bewertet Ausgaben nach Kriterien.","skaliert günstiger als rein manuell.","sollte validiert werden.","ersetzt jede menschliche Kontrolle vollständig."],c:[0,1,2],e:"Auch ein Judge braucht Validierung."},
+{t:"Erfolgsmessung",q:"Beim Bewerten abwägen:",o:["Qualität der Ergebnisse.","Kosten/Latenz.","Nutzerzufriedenheit.","nur die Modellgröße."],c:[0,1,2],e:"Erfolg ist mehrdimensional."},
+{t:"Erfolgsmessung",q:"Im laufenden Betrieb …",o:["Fehlerquote überwachen.","Nutzer-Feedback sammeln.","auf Datendrift achten.","einmal testen genügt für immer."],c:[0,1,2],e:"Qualität muss laufend beobachtet werden."},
+
+{t:"Security",q:"Was ist Prompt Injection (OWASP LLM01)?",o:["Versteckte Anweisungen in Eingaben manipulieren den Agenten.","Versuch, Regeln zu überschreiben oder Daten auszuleiten.","Eine legitime Optimierungsmethode.","Abwehrbar durch deterministische Logik + feste Empfänger."],c:[0,1,3],e:"Injection ist ein Angriff, keine Optimierung."},
+{t:"Security",q:"Wie härtet man gegen Prompt Injection?",o:["Eingaben nur als Daten, nie als Anweisung behandeln.","Ein- und Ausgaben validieren.","feste Empfänger statt Freitext.","dem Modell alle Rechte geben."],c:[0,1,2],e:"Maximale Rechte erhöhen das Risiko."},
+{t:"Security",q:"Warum ist „Insecure Output Handling“ ein Risiko?",o:["LLM-Ausgaben können Schadcode/Injektionen enthalten.","Ausgaben vor Weiterverarbeitung validieren.","Ungeprüft in DB/HTML übernommen gefährlich.","LLM-Ausgaben sind immer sicher."],c:[0,1,2],e:"LLM-Ausgaben sind unvertrauenswürdige Eingaben für Folgesysteme."},
+{t:"Security",q:"„Excessive Agency“ bedeutet …",o:["der Agent hat mehr Rechte/Funktionen als nötig.","Gegenmittel: Least Privilege.","menschliche Freigabe für folgenreiche Aktionen.","mehr Rechte = grundsätzlich sicherer."],c:[0,1,2],e:"Zu viele Rechte erhöhen den Schaden."},
+{t:"Security",q:"Least Privilege heißt …",o:["nur nötige Rechte pro Agent.","Schreibrechte nur, wo nötig.","getrennte, enge Credentials.","ein Admin-Zugang für alles."],c:[0,1,2],e:"Ein Allzugang widerspricht dem Prinzip."},
+{t:"Security",q:"Guardrails …",o:["definieren erlaubtes Verhalten.","filtern/prüfen Ein- und Ausgaben.","reduzieren Missbrauch.","machen menschliche Kontrolle überflüssig."],c:[0,1,2],e:"Guardrails ersetzen keine Aufsicht."},
+{t:"Security",q:"Datenabfluss ans Cloud-LLM verhindern:",o:["Pseudonymisierung/Platzhalter.","Datenminimierung.","Injection-Härtung gegen Exfiltration.","alle Kundendaten mitschicken."],c:[0,1,2],e:"Datenminimierung statt „alles senden“."},
+{t:"Security",q:"Qualitätssicherung gegen Halluzination:",o:["Grounding/Belege mitgeben.","nur belegte Fakten zulassen.","bei Unsicherheit eskalieren.","Temperature maximal setzen."],c:[0,1,2],e:"Hohe Temperature verschlimmert es."},
+{t:"Security",q:"Wie sichert man Qualität ab?",o:["Testfälle inkl. Angriffsfälle.","Review/Freigabe.","Monitoring im Betrieb.","gar nicht testen."],c:[0,1,2],e:"Testen ist Kern der Qualitätssicherung."},
+{t:"Security",q:"Umgang mit sensiblen Daten im Agenten:",o:["nur nötige Daten verarbeiten.","Zugriffe beschränken.","trennen/pseudonymisieren.","frei überall speichern."],c:[0,1,2],e:"Sensible Daten brauchen Schutz."},
+
+{t:"Datensicherheit",q:"Pseudonymisierung vs. Anonymisierung:",o:["Pseudonymisierung ist über einen Schlüssel reversibel.","Pseudonyme Daten bleiben personenbezogen.","Anonymisierung ist irreversibel.","Anonyme Daten unterliegen weiterhin voll der DSGVO."],c:[0,1,2],e:"Echte Anonymisierung verlässt den DSGVO-Anwendungsbereich."},
+{t:"Datensicherheit",q:"Die 2-Zonen-Architektur:",o:["Klartext-PII in der Vertrauenszone (Tresor).","Arbeitszone nur mit Platzhaltern/Token.","Re-Identifikation erst beim Versand.","macht die DSGVO für pseudonyme Daten unanwendbar."],c:[0,1,2],e:"Pseudonyme Daten bleiben personenbezogen."},
+{t:"Datensicherheit",q:"Nutzen der Pseudonymisierung ist …",o:["Datenminimierung.","kein Klartext-PII ans Cloud-LLM.","Risikoreduktion bei Leaks.","kein Nutzen."],c:[0,1,2],e:"Sie reduziert Personenbezug und Risiko."},
+{t:"Datensicherheit",q:"Zusätzliche Absicherung des Tresors:",o:["Verschlüsselung der Felder.","Zugriffsbeschränkung.","lokal/On-Premise statt Cloud.","Klartext für alle sichtbar."],c:[0,1,2],e:"Offener Klartext widerspricht dem Schutzziel."},
+{t:"Datensicherheit",q:"Datenminimierung (Art. 5) heißt …",o:["nur nötige Daten verarbeiten.","dem LLM keine unnötigen Klardaten geben.","Zweckbindung beachten.","möglichst viele Daten sammeln."],c:[0,1,2],e:"Weniger ist mehr."},
+{t:"Datensicherheit",q:"Bei einem Leak der Arbeitszone …",o:["liegen keine Klarnamen offen (nur Token).","bleibt der Personenbezug im Tresor.","ist der Schaden reduziert.","sind alle Klardaten sofort öffentlich."],c:[0,1,2],e:"Genau das ist der Sinn der Zonentrennung."},
+
+{t:"DSGVO",q:"Rechtsgrundlagen (Art. 6 Abs. 1):",o:["Einwilligung (lit. a).","Vertrag/-anbahnung (lit. b).","berechtigtes Interesse (lit. f).","der Wunsch des Marketing-Teams."],c:[0,1,2],e:"Ein Wunsch ist keine Rechtsgrundlage."},
+{t:"DSGVO",q:"Art. 22 DSGVO:",o:["Recht, keiner rein automatisierten Entscheidung mit erheblicher Wirkung unterworfen zu sein.","begründet Human-in-the-Loop.","Pflicht, alles 10 Jahre zu speichern.","verbietet jede KI."],c:[0,1],e:"Art. 22 fordert menschliches Eingreifen, kein KI-Verbot."},
+{t:"DSGVO",q:"Cloud-LLM (z. B. Azure OpenAI) nutzen:",o:["AV-Vertrag (Art. 28) mit dem Anbieter.","Drittlandtransfer braucht Garantien (SCC).","Auftragsverarbeiter ist weisungsgebunden.","Anbieter darf frei mit den Daten machen."],c:[0,1,2],e:"Auftragsverarbeiter sind weisungsgebunden."},
+{t:"DSGVO",q:"Warum wird Azure OpenAI oft für DSGVO gewählt?",o:["EU-Region/Datenresidenz wählbar.","AV-Vertrag/Enterprise-Bedingungen.","Daten werden (per Zusage) nicht fürs Training genutzt.","es hebelt die DSGVO aus."],c:[0,1,2],e:"Kein Anbieter hebelt die DSGVO aus."},
+{t:"DSGVO",q:"Betroffenenrechte:",o:["Auskunft (Art. 15).","Löschung (Art. 17).","Datenübertragbarkeit (Art. 20).","kostenlose Software."],c:[0,1,2],e:"Kostenlose Software ist kein DSGVO-Recht."},
+{t:"DSGVO",q:"Speicherbegrenzung (Art. 5 Abs. 1 lit. e):",o:["Daten nicht länger als nötig speichern.","Löschkonzept/Fristen vorsehen.","Aufbewahrungspflichten beachten.","alles ewig behalten."],c:[0,1,2],e:"Unbegrenztes Speichern verstößt gegen Art. 5."},
+
+{t:"Kosten",q:"Wovon hängen die Kosten einer LLM-Anwendung ab?",o:["Tokens (Ein- + Ausgabe).","gewähltes Modell.","Aufrufhäufigkeit.","Bildschirmgröße des Nutzers."],c:[0,1,2],e:"Kosten skalieren mit Tokens/Modell/Aufrufen."},
+{t:"Kosten",q:"Wie senkt man LLM-Kosten sinnvoll?",o:["kleineres Modell für einfache Teilaufgaben.","Prompt-Caching für wiederkehrende Kontexte.","Prompt/Kontext auf das Nötige kürzen.","immer das teuerste Modell wählen."],c:[0,1,2],e:"Modellwahl nach Bedarf."},
+{t:"Kosten",q:"Budgetierung einer KI-Lösung:",o:["Tokens pro Vorgang schätzen.","Volumen (Vorgänge/Monat) einbeziehen.","Nebenkosten (Speicher/Tools) bedenken.","Kosten sind nicht abschätzbar."],c:[0,1,2],e:"Kosten lassen sich modellieren."},
+{t:"Kosten",q:"Was kann Kosten/Latenz reduzieren?",o:["Caching wiederkehrender Anfragen.","Batching.","kürzere Kontexte.","mehr überflüssiger Kontext."],c:[0,1,2],e:"Überflüssiger Kontext kostet mehr."},
+{t:"Kosten",q:"Wirtschaftlichkeit beurteilen heißt …",o:["Nutzen (Zeit/Geld) gegen Kosten stellen.","nur automatisieren, wenn es sich lohnt.","Fehlerkosten einbeziehen.","Kosten ignorieren."],c:[0,1,2],e:"ROI = Nutzen vs. Kosten inkl. Risiken."},
+
+{t:"TTS/STT",q:"Ordne zu:",o:["TTS = Text-to-Speech (Text → Sprache).","STT = Speech-to-Text (Sprache → Text).","STT wird auch Transkription genannt.","TTS wandelt Sprache in Text um."],c:[0,1,2],e:"TTS erzeugt Sprache, STT transkribiert."},
+{t:"TTS/STT",q:"Anwendungen von STT?",o:["Sprachnachrichten transkribieren.","Voice-Eingaben in Workflows.","Untertitel/Protokolle.","Bilder generieren."],c:[0,1,2],e:"Bildgenerierung ist eine andere Modalität."},
+{t:"TTS/STT",q:"In einem n8n-Voice-Workflow …",o:["prüft man, ob eine Sprach- oder Textnachricht vorliegt.","transkribiert STT die Sprachnachricht.","der Agent verarbeitet dann den Text.","man braucht kein LLM."],c:[0,1,2],e:"Nach der Transkription verarbeitet meist ein LLM den Text."},
+{t:"TTS/STT",q:"Was beeinflusst die STT-Qualität?",o:["Audioqualität/Hintergrundgeräusche.","Sprache/Dialekt.","gewähltes Modell.","die Bildschirmauflösung."],c:[0,1,2],e:"Die Bildschirmauflösung ist irrelevant."},
+{t:"TTS/STT",q:"Bei TTS/STT per API beachten:",o:["Abrechnung oft nach Audiolänge/Zeichen.","unterstützte Formate/Sprachen.","Datenschutz bei Sprachdaten (personenbezogen).","Audio ist nie personenbezogen."],c:[0,1,2],e:"Stimme/Sprachinhalt kann personenbezogen sein."},
+
+{t:"Bild/Vision",q:"Was kennzeichnet ein multimodales Modell?",o:["Es verarbeitet mehr als eine Eingabemodalität (z. B. Text + Bild).","Für die Bildanalyse braucht es Vision-Fähigkeit.","Alle Modelle eines Anbieters sind automatisch multimodal.","Multimodal = mehrere Sprachen gleichzeitig übersetzen."],c:[0,1],e:"Multimodal = mehrere Modalitäten; nicht jedes Modell kann das."},
+{t:"Bild/Vision",q:"Bildgenerierung per API …",o:["erzeugt Bilder aus Textprompts.","Prompt-Qualität beeinflusst das Ergebnis.","Auflösung/Stil sind steuerbar.","liefert immer fehlerfreie Bilder."],c:[0,1,2],e:"Auch Bildmodelle machen Fehler."},
+{t:"Bild/Vision",q:"Bildanalyse (Vision) kann …",o:["Objekte/Text im Bild erkennen.","Inhalte beschreiben.","als Eingabe ein Bild verlangen.","Bilder nur erzeugen, nicht lesen."],c:[0,1,2],e:"Vision liest Bilder als Eingabe."},
+{t:"Bild/Vision",q:"Bei generierten/analysierten Bildern beachten:",o:["Urheber-/Nutzungsrechte.","Datenschutz bei Personen auf Bildern.","Kennzeichnung KI-generierter Inhalte.","Bilder sind rechtlich irrelevant."],c:[0,1,2],e:"Auch Bilder haben rechtliche Aspekte."},
+{t:"Bild/Vision",q:"Bild-APIs …",o:["rechnen oft pro Bild/Auflösung ab.","haben Modell-/Qualitätsstufen.","brauchen für die Analyse ein Vision-Modell.","sind immer kostenlos."],c:[0,1,2],e:"Bild-APIs verursachen Kosten."},
+
+{t:"Nische",q:"Warum eine Nische/Spezialisierung wählen?",o:["Klareres Angebot/Positionierung.","Tiefe statt Breite.","gezieltere Kundenansprache.","um alles für jeden zu machen."],c:[0,1,2],e:"„Alles für jeden“ ist keine Spezialisierung."},
+{t:"Nische",q:"Vorteile eines Branchenfokus?",o:["Domänenwissen/Wiederverwendung.","passgenaue Lösungen.","Referenzen/Vertrauen.","zufällige Projekte ohne Muster."],c:[0,1,2],e:"Fokus schafft Wiederverwendbarkeit."},
+{t:"Nische",q:"Ein klares Leistungsangebot …",o:["benennt Nutzen/Ergebnis.","zielt auf eine definierte Zielgruppe.","ist wiederholbar/skalierbar.","bleibt bewusst vage."],c:[0,1,2],e:"Vagheit schadet der Positionierung."},
+{t:"Nische",q:"Womit differenziert man sich nachhaltig?",o:["Spezialwissen.","nachweisbare Ergebnisse.","Prozess/Qualität.","allein dem niedrigsten Preis."],c:[0,1,2],e:"Nur über den Preis ist selten nachhaltig."},
+{t:"Nische",q:"Skalierbarkeit in einer Nische …",o:["wiederkehrende Lösungsbausteine.","Templates/Automatisierung.","standardisierte Prozesse.","jedes Projekt komplett neu erfinden."],c:[0,1,2],e:"Wiederverwendung ermöglicht Skalierung."},
+
+{t:"EU AI Act",q:"Der EU AI Act …",o:["klassifiziert risikobasiert (minimal bis verboten).","höheres Risiko = strengere Pflichten.","gilt EU-weit als Verordnung.","richtet sich nur nach dem Umsatz."],c:[0,1,2],e:"Er ist risikobasiert aufgebaut."},
+{t:"EU AI Act",q:"Transparenzpflicht (Art. 50):",o:["KI-Einsatz/KI-Inhalte kennzeichnen.","Nutzer über den KI-Einsatz informieren.","alle Quelltexte offenlegen.","das LLM verbieten."],c:[0,1],e:"Art. 50 verlangt Transparenz, keine Quelloffenlegung."},
+{t:"EU AI Act",q:"GPAI (General-Purpose-Modelle):",o:["vielseitige Basismodelle (z. B. GPT).","Modellpflichten liegen beim Anbieter.","der API-Nutzer wird nicht automatisch Anbieter.","der Deployer muss das Modell selbst trainieren."],c:[0,1,2],e:"Der Deployer nutzt das Modell, trainiert es nicht."}
 ];
 
-const quiz=document.getElementById('quiz');
-Q.forEach((it,qi)=>{
-  const nc=it.c.length;
-  const div=document.createElement('div'); div.className='q'; div.id='q'+qi;
-  let html='<h3>'+(qi+1)+'. '+it.q+'</h3><div class="meta">'+(nc>1?nc+' richtige Antworten':'1 richtige Antwort')+'</div>';
-  it.o.forEach((op,oi)=>{ html+='<label class="opt" id="q'+qi+'o'+oi+'"><input type="checkbox" data-q="'+qi+'" data-o="'+oi+'"><span>'+op+'</span></label>'; });
-  html+='<div class="expl" id="e'+qi+'"></div>';
-  div.innerHTML=html; quiz.appendChild(div);
-});
+/* ---------- App ---------- */
+const app=document.getElementById('app');
+const bar=document.getElementById('bar');
+const timerEl=document.getElementById('timer');
+let timerId=null, examRun=null;
 
-function evaluate(){
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function topics(){ return [...new Set(Q.map(q=>q.t))].sort(); }
+
+function renderHome(){
+  clearTimer(); bar.classList.add('hidden'); bar.innerHTML='';
+  app.innerHTML =
+   '<div class="card center">'+
+   '<h2>Willkommen zum Prüfungstrainer</h2>'+
+   '<p class="sub">Multiple Select · mehrere Antworten können richtig sein · Wertung nach TÜV-Regel: '+
+   '<b>nur vollständig richtig = 1 Punkt</b> (K.O. je Frage).</p>'+
+   '<div class="modebtns">'+
+     '<button class="primary big" id="startExam">▶ Prüfungssimulation<br><span style="font-weight:500;font-size:.82rem">30 Zufallsfragen · 60 Min · bestanden ab 18/30</span></button>'+
+     '<button class="ghost big" id="startPractice">📚 Übungsmodus<br><span style="font-weight:500;font-size:.82rem">alle '+Q.length+' Fragen · kein Timer · nach Thema filterbar</span></button>'+
+   '</div>'+
+   '<p class="sub" style="margin-top:1.2rem">Fragenpool: <b>'+Q.length+'</b> Fragen aus '+topics().length+' Themengebieten:</p>'+
+   '<ul class="topics">'+topics().map(t=>'<li>'+t+'</li>').join('')+'</ul>'+
+   '</div>';
+  document.getElementById('startExam').addEventListener('click',startExam);
+  document.getElementById('startPractice').addEventListener('click',()=>renderPractice('__all__'));
+}
+
+function questionHTML(it,idx){
+  const nc=it.c.length;
+  let h='<div class="q" id="q'+idx+'"><div class="top"><h3>'+(idx+1)+'. '+it.q+'</h3><span class="tag">'+it.t+'</span></div>'+
+        '<div class="meta">'+(nc>1?nc+' richtige Antworten':'1 richtige Antwort')+'</div>';
+  it.o.forEach((op,oi)=>{ h+='<label class="opt" id="q'+idx+'o'+oi+'"><input type="checkbox" data-q="'+idx+'" data-o="'+oi+'"><span>'+op+'</span></label>'; });
+  h+='<div class="expl" id="e'+idx+'"></div></div>';
+  return h;
+}
+
+function gradeList(list){
   let pts=0;
-  Q.forEach((it,qi)=>{
-    const chosen=[...document.querySelectorAll('input[data-q="'+qi+'"]:checked')].map(x=>+x.dataset.o).sort();
+  list.forEach((it,idx)=>{
+    const chosen=[...document.querySelectorAll('input[data-q="'+idx+'"]:checked')].map(x=>+x.dataset.o).sort();
     const correct=[...it.c].sort();
     const ok = chosen.length===correct.length && chosen.every((v,i)=>v===correct[i]);
     if(ok) pts++;
     it.o.forEach((op,oi)=>{
-      const lab=document.getElementById('q'+qi+'o'+oi);
+      const lab=document.getElementById('q'+idx+'o'+oi);
       lab.querySelector('input').disabled=true;
       if(it.c.includes(oi)) lab.classList.add('correct');
       else if(lab.querySelector('input').checked) lab.classList.add('wrong');
     });
-    const h=document.querySelector('#q'+qi+' h3');
-    h.insertAdjacentHTML('beforeend','<span class="badge '+(ok?'b-ok':'b-no')+'">'+(ok?'Richtig':'Falsch')+'</span>');
-    const ex=document.getElementById('e'+qi); ex.style.display='block'; ex.textContent=it.e;
+    const hd=document.querySelector('#q'+idx+' h3');
+    hd.insertAdjacentHTML('beforeend','<span class="badge '+(ok?'b-ok':'b-no')+'">'+(ok?'richtig':'falsch')+'</span>');
+    const ex=document.getElementById('e'+idx); ex.style.display='block'; ex.textContent=it.e;
   });
-  const pct=Math.round(pts/Q.length*100);
-  const pass=pct>=60;
-  document.getElementById('score').innerHTML='Ergebnis: '+pts+' / '+Q.length+' Punkte ('+pct+'%) '+
-     '<span class="'+(pass?'pass':'fail')+'">'+(pass?'✓ bestanden (≥60%)':'✗ noch nicht (60% nötig)')+'</span>';
+  return pts;
+}
+
+/* ---- Prüfungssimulation ---- */
+function startExam(){
+  examRun = shuffle(Q).slice(0, Math.min(30,Q.length));
+  app.innerHTML = examRun.map((it,i)=>questionHTML(it,i)).join('');
+  bar.classList.remove('hidden');
+  bar.innerHTML='<button class="primary" id="submitExam">Prüfung abgeben</button>'+
+                '<button class="ghost" id="abortExam">Abbrechen</button>'+
+                '<span id="result"></span>';
+  document.getElementById('submitExam').addEventListener('click',()=>submitExam(false));
+  document.getElementById('abortExam').addEventListener('click',renderHome);
+  startTimer(60*60);
+  window.scrollTo({top:0});
+}
+function submitExam(auto){
+  clearTimer();
+  const pts=gradeList(examRun);
+  const total=examRun.length, pass=pts>=18;
+  timerEl.classList.add('hidden');
+  bar.innerHTML='<button class="primary" id="again">Neue Prüfung</button>'+
+                '<button class="ghost" id="home">Startseite</button>'+
+                '<span id="result">Ergebnis: <b>'+pts+' / '+total+'</b> '+
+                '<span class="'+(pass?'pass':'fail')+'">'+(pass?'✓ bestanden (≥18)':'✗ nicht bestanden (18 nötig)')+'</span>'+
+                (auto?' · ⏱ Zeit abgelaufen':'')+'</span>';
+  document.getElementById('again').addEventListener('click',startExam);
+  document.getElementById('home').addEventListener('click',renderHome);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-document.getElementById('btnEval').addEventListener('click', evaluate);
-document.getElementById('btnReset').addEventListener('click', function(){ location.reload(); });
+/* ---- Übungsmodus ---- */
+function renderPractice(topic){
+  clearTimer(); timerEl.classList.add('hidden');
+  const list = topic==='__all__' ? Q : Q.filter(q=>q.t===topic);
+  window.__practice=list;
+  let head='<div class="card"><div class="filterrow"><b>Übungsmodus</b>'+
+    '<label>Thema: <select id="topicSel"><option value="__all__">Alle ('+Q.length+')</option>'+
+    topics().map(t=>'<option value="'+t+'"'+(t===topic?' selected':'')+'>'+t+' ('+Q.filter(q=>q.t===t).length+')</option>').join('')+
+    '</select></label><button class="ghost" id="toHome">← Startseite</button></div>'+
+    '<span class="sub">'+list.length+' Fragen · nur vollständig richtig zählt.</span></div>';
+  app.innerHTML = head + list.map((it,i)=>questionHTML(it,i)).join('');
+  bar.classList.remove('hidden');
+  bar.innerHTML='<button class="primary" id="evalP">Auswerten</button>'+
+                '<button class="ghost" id="resetP">Zurücksetzen</button>'+
+                '<span id="result"></span>';
+  document.getElementById('topicSel').addEventListener('change',e=>renderPractice(e.target.value));
+  document.getElementById('toHome').addEventListener('click',renderHome);
+  document.getElementById('resetP').addEventListener('click',()=>renderPractice(topic));
+  document.getElementById('evalP').addEventListener('click',()=>{
+    const pts=gradeList(list); const pct=Math.round(pts/list.length*100);
+    document.getElementById('result').innerHTML='Ergebnis: <b>'+pts+' / '+list.length+'</b> ('+pct+'%)';
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  window.scrollTo({top:0});
+}
+
+/* ---- Timer ---- */
+function startTimer(sec){
+  timerEl.classList.remove('hidden');
+  let left=sec;
+  const upd=()=>{
+    const m=String(Math.floor(left/60)).padStart(2,'0'), s=String(left%60).padStart(2,'0');
+    timerEl.textContent='⏱ '+m+':'+s;
+    timerEl.classList.toggle('warn', left<=300);
+    if(left<=0){ submitExam(true); return; }
+    left--;
+  };
+  upd(); timerId=setInterval(upd,1000);
+}
+function clearTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+
+renderHome();
 </script>
 </body>
 </html>
